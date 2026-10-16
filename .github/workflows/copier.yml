@@ -1,0 +1,57 @@
+name: Channel copier
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "normal, or backfill5 (also copy the last 5 posts of every source channel)"
+        type: choice
+        options: [normal, backfill5]
+        default: normal
+
+permissions:
+  contents: write
+
+concurrency:
+  group: copier
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Copy new posts
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          SESSION_STRING: ${{ secrets.SESSION_STRING }}
+          SOURCE_CHANNELS: ${{ secrets.SOURCE_CHANNELS }}
+          TARGET_CHANNEL: ${{ secrets.TARGET_CHANNEL }}
+          POST_DELAY_SECONDS: "3"
+          MODE: ${{ inputs.mode }}
+        run: |
+          if [ "$MODE" = "backfill5" ]; then
+            rm -f copier.db
+            python channel_copier.py --once --backfill 5
+          else
+            python channel_copier.py --once
+          fi
+
+      - name: Save progress
+        run: |
+          git config user.name "copier"
+          git config user.email "copier@users.noreply.github.com"
+          if [ -f copier.db ]; then git add copier.db; fi
+          git diff --cached --quiet || (git commit -m "update copier state" && git push)
