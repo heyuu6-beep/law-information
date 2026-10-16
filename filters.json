@@ -1,0 +1,44 @@
+{
+  "dedupe": {
+    "enabled": true,
+    "threshold": 0.7,
+    "days": 14
+  },
+  "defaults": {
+    "include_any": [],
+    "exclude_any": [
+      "casino",
+      "betting"
+    ],
+    "exclude_regex": [],
+    "allowed_types": [
+      "text",
+      "photo",
+      "video",
+      "audio",
+      "document",
+      "gif"
+    ],
+    "min_length": 0,
+    "max_length": 0,
+    "skip_forwarded": false,
+    "skip_without_text": false,
+    "strip_lines_containing": [
+      "join us",
+      "join our channel",
+      "subscribe",
+      "ይቀላቀሉ",
+      "ይቀላቀሉን",
+      "ለመቀላቀል",
+      "ሼር"
+    ],
+    "replace": {},
+    "remove_links": true,
+    "remove_usernames": true,
+    "remove_hashtags": false,
+    "add_source_credit": true,
+    "credit_with_post_link": false,
+    "footer": ""
+  },
+  "channels": {}
+}
